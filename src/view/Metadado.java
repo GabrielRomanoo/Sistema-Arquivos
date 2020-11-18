@@ -17,6 +17,10 @@ public class Metadado {
 		}	
 	}
 	
+	public static void escreveMetadado() {
+		
+	}
+	
 	
 
 }
