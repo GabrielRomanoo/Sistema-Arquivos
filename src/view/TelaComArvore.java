@@ -7,14 +7,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JFileChooser;
-
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -23,28 +24,27 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
+import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.JTextArea;
 
 public class TelaComArvore {
 
 	/* Declara as referencias */
 	private JFrame frame;
-	Hd hd = new Hd();
 	int numeroDeDiretorios;
-	int numeroDeNos;
-	JTree tree;
-	DefaultMutableTreeNode rootNode;
+	public static int numeroDeNos = 0;
+	private static JTree tree;
+	private static DefaultMutableTreeNode rootNode;
 	JTextArea textArea;
 	
 	/* Listas auxiliares */
-	List<DefaultMutableTreeNode> diretorios = new ArrayList<DefaultMutableTreeNode>();
-	List<String> arquivosDiretorio = new ArrayList<String>(); // depois tem que mudar para varios diretorios
+	public static List<DefaultMutableTreeNode> diretorios = new ArrayList<DefaultMutableTreeNode>();
+	public static List<String> arquivosDiretorio = new ArrayList<String>(); // depois tem que mudar para varios diretorios
 	List<String> infosDiretorio = new ArrayList<String>();
-	List<Integer> numerosDeNos = new ArrayList<Integer>();
+//	List<Integer> numerosDeNos = new ArrayList<Integer>();
 
 	/**
 	 * Launch the application.
@@ -55,6 +55,7 @@ public class TelaComArvore {
 			public void run() {
 				try {
 					TelaComArvore window = new TelaComArvore();
+					Hd hd = new Hd();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -133,7 +134,6 @@ public class TelaComArvore {
 		frame.getContentPane().setLayout(groupLayout);
 		textArea.setEditable(true);
 		textArea.setVisible(true);
-//		textArea.setText("olaaaaaaaaaaaaa");
 
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -147,11 +147,22 @@ public class TelaComArvore {
 		mnNewMenu_1.add(mntmNewMenuItem_2);
 		mntmNewMenuItem_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				numeroDeNos++;
-				String nome = JOptionPane.showInputDialog(frame, "Digite o nome do arquivo");
-//				hd.verificaArquivo(nome); //tem que terminar de implementar
-				arquivosDiretorio.add(nome);
-				updateArvore();
+				if (e.getSource() == mntmNewMenuItem_2) {
+					JFileChooser fc = new JFileChooser();
+					int i = fc.showOpenDialog(mntmNewMenuItem_2);
+					if (i == JFileChooser.APPROVE_OPTION) {
+						File f = fc.getSelectedFile();
+						String filepath = f.getPath();
+						try {
+							numeroDeNos++;
+							Hd.escreverNoHd(filepath);//tem que terminar de implementar
+							arquivosDiretorio.add(f.getName());
+							updateArvore();
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+					}
+				}
 				panel.updateUI();
 			}
 		});
@@ -238,8 +249,8 @@ public class TelaComArvore {
 		mnAjuda.add(mntmNewMenuItem_1_3);
 	}
 
-	public void updateArvore() {
-		rootNode.removeAllChildren();
+	public static void updateArvore() {
+		TelaComArvore.rootNode.removeAllChildren();
 		diretorios.get(0).removeAllChildren();
 		for (int i = 0; i < numeroDeNos; i++) {
 			DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
@@ -253,11 +264,13 @@ public class TelaComArvore {
 		expandAll();
 	}
 
-	public void expandAll() {
+	public static void expandAll() {
 		int row = 0;
 		while (row < tree.getRowCount()) {
 			tree.expandRow(row);
 			row++;
 		}
 	}
+	
+	
 }

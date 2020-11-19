@@ -4,8 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class Hd {
 
@@ -20,7 +25,8 @@ public class Hd {
 		if (!file.exists()) {
 			criaHd();
 		} else {
-
+			// carregar os dados do metadado e colocar na arvore e listas
+			Metadado.carregarDados();
 		}
 	}
 
@@ -44,20 +50,23 @@ public class Hd {
 
 	}
 
-	public void verificaArquivo(String nome) {
-		try {
-			OutputStream fos = new FileOutputStream(nome); // isso seria para o arquivo estar no pc de verdade
-			// escrever o arquivo no hd
-			// escreverNoHd(fos);
-		} catch (FileNotFoundException e) {
-			System.out.println("Erro na leitura do arquivo, no metodo verificaArquivo");
-			e.printStackTrace();
-		}
-	}
 
-	private void escreverNoHd(InputStream fos) {
+	public static void escreverNoHd(String caminho) {
+		//antes de escrever, precisa verificar se ja existe o arquivo no metadado
 		// se preocupar como dizer onde o arquivo inicia e termina, e indicar isso no
 		// metadado
-		Metadado.escreveMetadado();
+		try {
+			File file = new File(caminho);
+			FileOutputStream fos = new FileOutputStream("hd.bin", true);
+			byte[] bytes = Files.readAllBytes(file.toPath());
+			fos.write(bytes);
+			fos.write('\n');
+			fos.close();
+			Metadado.gravarNoMetadado(file);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+//		Metadado.escreveMetadado();
 	}
 }
