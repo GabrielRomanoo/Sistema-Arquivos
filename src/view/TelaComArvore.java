@@ -5,14 +5,10 @@ import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.GroupLayout;
@@ -25,14 +21,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JScrollBar;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
 
 public class TelaComArvore {
 
@@ -48,7 +42,6 @@ public class TelaComArvore {
 	public static List<DefaultMutableTreeNode> diretorios = new ArrayList<DefaultMutableTreeNode>();
 	public static List<String> arquivosDiretorio = new ArrayList<String>(); // depois tem que mudar para varios diretorios
 	List<String> infosDiretorio = new ArrayList<String>();
-//	List<Integer> numerosDeNos = new ArrayList<Integer>();
 
 	/**
 	 * Launch the application.
@@ -89,7 +82,6 @@ public class TelaComArvore {
 		rootNode = new DefaultMutableTreeNode("Disco (C:)");
 		numeroDeNos = 0;
 		numeroDeDiretorios = 0;
-//		tree = new JTree(new DefaultTreeModel(rootNode));
 		tree = new JTree();
 		tree.setEditable(true);
 		tree.setShowsRootHandles(true);
@@ -164,9 +156,8 @@ public class TelaComArvore {
 						String filepath = f.getPath();
 						try {
 							numeroDeNos++;
-							//antes de escrever, precisa ver se já existe esse arquivo no metadado
 							if (Metadado.verificaArquivo(filepath)) {
-								Hd.escreverNoHd(filepath);//tem que terminar de implementar
+								Hd.escreverNoHd(filepath);
 								arquivosDiretorio.add(f.getName());
 								updateArvore();
 							} else {
@@ -201,13 +192,16 @@ public class TelaComArvore {
 		mnNewMenu.setFont(new Font("Rubik", Font.PLAIN, 12));
 		menuBar.add(mnNewMenu);
 
-		JMenuItem mntmNewMenuItem = new JMenuItem("Novo");
+		JMenuItem mntmNewMenuItem = new JMenuItem("Visualizar Metadados");
 		mntmNewMenuItem.setFont(new Font("Rubik", Font.PLAIN, 12));
 		mnNewMenu.add(mntmNewMenuItem);
-
-		JMenuItem mntmNewMenuItem_1 = new JMenuItem("Deletar");
-		mntmNewMenuItem_1.setFont(new Font("Rubik", Font.PLAIN, 12));
-		mnNewMenu.add(mntmNewMenuItem_1);
+		mntmNewMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String conteudoMetadado = Metadado.lerMetadado();
+	    		textArea.setVisible(true);
+				textArea.setText(conteudoMetadado);
+			}
+		});
 		
 		JMenuItem open = new JMenuItem("FileChooser");
 		open.setFont(new Font("Rubik", Font.PLAIN, 12));
@@ -286,17 +280,19 @@ public class TelaComArvore {
 		}
 	}
 	
-	public void treeValueChanged( TreeSelectionEvent tse ) {
+	public void treeValueChanged(TreeSelectionEvent tse) {
 	     String node = tse.getNewLeadSelectionPath().getLastPathComponent().toString();
 	     arquivosDiretorio.forEach(elemento -> {
 	    	 if (node.toString() == elemento.toString()) {
-	    		 // procurar no metadado o tamanho do arquivo, e depois 
-	    		 // buscar no hd o conteudo, e mostrar na tela
-	    		 String[] linhaMetadado = Metadado.buscaTamanhoArquivo(elemento.toString());
-//	    		 System.out.println(linhaMetadado[1]);
-	    		 String conteudo = Hd.buscarConteudo(linhaMetadado);
-	    		 textArea.setVisible(true);
-				 textArea.setText(conteudo);
+	    		 String extensao = node.toString().substring(node.length() - 3, node.length());
+	    		 if (extensao == "txt" ) {
+		    		 String[] linhaMetadado = Metadado.buscaTamanhoArquivo(elemento.toString());
+		    		 String conteudo = Hd.buscarConteudo(linhaMetadado);
+		    		 textArea.setVisible(true);
+					 textArea.setText(conteudo);
+	    		 } else {
+	    			 JOptionPane.showMessageDialog(frame, "É possível apenas ler aquivos (.txt)");
+	    		 }
 	    	 }
 	     });
 	}

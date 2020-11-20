@@ -3,9 +3,9 @@ package view;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -19,7 +19,8 @@ public class Metadado {
 	public static void criaMetadado() {
 		try {
 			OutputStream fos = new FileOutputStream(Metadado.pathMetadado);
-		} catch (FileNotFoundException e) {
+			fos.close();
+		} catch (IOException e) {
 			System.out.println("Erro na criação do arquivo");
 			e.printStackTrace();
 		}
@@ -27,7 +28,7 @@ public class Metadado {
 
 	public static void gravarNoMetadado(File file) {
 		try {
-			FileOutputStream fos = new FileOutputStream("metadado.bin", true);
+			FileOutputStream fos = new FileOutputStream(Metadado.pathMetadado, true);
 			numeroDeArquivos++;
 			File hd = new File(Hd.pathHd);
 			String conteudo = numeroDeArquivos + "@" + ";" + file.getName() + ";" + file.getPath() + ";"
@@ -44,7 +45,7 @@ public class Metadado {
 
 	public static void carregarDados() {
 		try {
-			FileInputStream fis = new FileInputStream("metadado.bin");
+			FileInputStream fis = new FileInputStream(Metadado.pathMetadado);
 			Reader isr = new InputStreamReader(fis);
 			BufferedReader br = new BufferedReader(isr);
 			String linha = br.readLine();
@@ -55,7 +56,7 @@ public class Metadado {
 				linha = br.readLine();
 			}
 			TelaComArvore.updateArvore();
-			fis.close();
+			br.close();
 		} catch (IOException e) {
 			numeroDeArquivos--;
 			e.printStackTrace();
@@ -64,7 +65,7 @@ public class Metadado {
 
 	public static boolean verificaArquivo(String filepath) {
 		try {
-			FileInputStream fis = new FileInputStream("metadado.bin");
+			InputStream fis = new FileInputStream(Metadado.pathMetadado);
 			Reader isr = new InputStreamReader(fis);
 			BufferedReader br = new BufferedReader(isr);
 			String linha = br.readLine();
@@ -76,7 +77,7 @@ public class Metadado {
 					return false;
 				linha = br.readLine();
 			}
-			fis.close();
+			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -85,7 +86,7 @@ public class Metadado {
 
 	public static String[] buscaTamanhoArquivo(String nome) {
 		try {
-			FileInputStream fis = new FileInputStream("metadado.bin");
+			InputStream fis = new FileInputStream(Metadado.pathMetadado);
 			Reader isr = new InputStreamReader(fis);
 			BufferedReader br = new BufferedReader(isr);
 			String linha = br.readLine();
@@ -96,10 +97,28 @@ public class Metadado {
 				}
 				linha = br.readLine();
 			}
-			fis.close();
+			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static String lerMetadado() {
+		String conteudo = "";
+		try {
+			InputStream fis = new FileInputStream(Metadado.pathMetadado);
+			Reader isr = new InputStreamReader(fis);
+			BufferedReader br = new BufferedReader(isr);
+			String linha = br.readLine();
+			while (linha != null) {
+				conteudo += linha + "\n";
+				linha = br.readLine();
+			}
+			br.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+		return conteudo;
 	}
 }

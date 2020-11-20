@@ -3,7 +3,6 @@ package view;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,20 +20,20 @@ public class Hd {
 	}
 
 	public void verificaHd() {
-		File file = new File(this.pathHd);
+		File file = new File(Hd.pathHd);
 		if (!file.exists()) {
 			criaHd();
 		} else {
-			// carregar os dados do metadado e colocar na arvore e listas
 			Metadado.carregarDados();
 		}
 	}
 
 	private void criaHd() {
 		try {
-			OutputStream fos = new FileOutputStream(this.pathHd);
+			OutputStream fos = new FileOutputStream(Hd.pathHd);
 			Metadado.criaMetadado();
-		} catch (FileNotFoundException e) {
+			fos.close();
+		} catch (IOException e) {
 			System.out.println("Erro na criação do arquivo");
 			e.printStackTrace();
 		}
@@ -42,20 +41,19 @@ public class Hd {
 
 	private void leHd() {
 		try {
-			InputStream fis = new FileInputStream(this.pathHd);
-		} catch (FileNotFoundException e) {
-			System.out.println("Erro na leitura do arquivo");
+			InputStream fis = new FileInputStream(Hd.pathHd);
+			fis.close();
+		} catch (IOException e) {
+			System.out.println("Erro na leitura do arquivo hd.bin");
 			e.printStackTrace();
 		}
 	}
 
 	public static void escreverNoHd(String caminho) {
-		// se preocupar como dizer onde o arquivo inicia e termina, e indicar isso no
-		// metadado
 		try {
 			File file = new File(caminho);
 			Metadado.gravarNoMetadado(file);
-			FileOutputStream fos = new FileOutputStream("hd.bin", true);
+			FileOutputStream fos = new FileOutputStream(Hd.pathHd, true);
 			byte[] bytes = Files.readAllBytes(file.toPath());
 			fos.write(bytes);
 			fos.close();
@@ -67,7 +65,7 @@ public class Hd {
 	public static String buscarConteudo(String[] linhaMetadado) {
 		String conteudo = "";
 		try {
-			InputStream fis = new FileInputStream("hd.bin");
+			InputStream fis = new FileInputStream(Hd.pathHd);
 			Reader isr = new InputStreamReader(fis);
 			BufferedReader br = new BufferedReader(isr);
 			int bytetInicio = Integer.parseInt(linhaMetadado[4]);
