@@ -5,12 +5,14 @@ import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.GroupLayout;
@@ -27,8 +29,10 @@ import javax.swing.JScrollBar;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 public class TelaComArvore {
 
@@ -50,7 +54,6 @@ public class TelaComArvore {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -78,10 +81,8 @@ public class TelaComArvore {
 
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
-		frame.setLayout(null);
+		frame.getContentPane().setLayout(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		JScrollBar scrollBar = new JScrollBar();
 		JPanel panel = new JPanel();
 		panel.setVisible(true);
 
@@ -95,13 +96,18 @@ public class TelaComArvore {
 		tree.setModel(new DefaultTreeModel(rootNode) {
 			{
 				DefaultMutableTreeNode node_1;
-				node_1 = new DefaultMutableTreeNode("Pasta1");
+				node_1 = new DefaultMutableTreeNode("Diretorio 1");
 				diretorios.add(node_1);
 				numeroDeDiretorios++;
-//				node_1.add(new DefaultMutableTreeNode("ok"));
 				rootNode.add(node_1);
 			}
 		});
+		
+		tree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+	        public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+	            treeValueChanged(evt);
+	        }
+	    });
 
 		JProgressBar progressBar = new JProgressBar();
 		progressBar.setIndeterminate(true);
@@ -109,25 +115,28 @@ public class TelaComArvore {
 		progressBar.setForeground(SystemColor.textHighlight);
 
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
-		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-				.addGroup(groupLayout.createSequentialGroup().addContainerGap()
-						.addComponent(tree, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.UNRELATED)
-						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addComponent(panel, GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
-								.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE))
-						.addPreferredGap(ComponentPlacement.RELATED).addComponent(scrollBar, GroupLayout.PREFERRED_SIZE,
-								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)));
-		groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-				.addComponent(scrollBar, GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
+		groupLayout.setHorizontalGroup(
+			groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
-						.addComponent(panel, GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-								GroupLayout.PREFERRED_SIZE)
-						.addContainerGap())
-				.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
-						.addComponent(tree, GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE).addContainerGap()));
+					.addContainerGap()
+					.addComponent(tree, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel, GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE)
+						.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE))
+					.addGap(23))
+		);
+		groupLayout.setVerticalGroup(
+			groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addComponent(panel, GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap())
+				.addGroup(groupLayout.createSequentialGroup()
+					.addComponent(tree, GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+					.addContainerGap())
+		);
 		
 		textArea = new JTextArea();
 		panel.add(textArea);
@@ -155,9 +164,14 @@ public class TelaComArvore {
 						String filepath = f.getPath();
 						try {
 							numeroDeNos++;
-							Hd.escreverNoHd(filepath);//tem que terminar de implementar
-							arquivosDiretorio.add(f.getName());
-							updateArvore();
+							//antes de escrever, precisa ver se já existe esse arquivo no metadado
+							if (Metadado.verificaArquivo(filepath)) {
+								Hd.escreverNoHd(filepath);//tem que terminar de implementar
+								arquivosDiretorio.add(f.getName());
+								updateArvore();
+							} else {
+								JOptionPane.showMessageDialog(frame, "Este arquivo já está gravado no hd!");
+							}
 						} catch (Exception ex) {
 							ex.printStackTrace();
 						}
@@ -272,5 +286,18 @@ public class TelaComArvore {
 		}
 	}
 	
-	
+	public void treeValueChanged( TreeSelectionEvent tse ) {
+	     String node = tse.getNewLeadSelectionPath().getLastPathComponent().toString();
+	     arquivosDiretorio.forEach(elemento -> {
+	    	 if (node.toString() == elemento.toString()) {
+	    		 // procurar no metadado o tamanho do arquivo, e depois 
+	    		 // buscar no hd o conteudo, e mostrar na tela
+	    		 String[] linhaMetadado = Metadado.buscaTamanhoArquivo(elemento.toString());
+//	    		 System.out.println(linhaMetadado[1]);
+	    		 String conteudo = Hd.buscarConteudo(linhaMetadado);
+	    		 textArea.setVisible(true);
+				 textArea.setText(conteudo);
+	    	 }
+	     });
+	}
 }

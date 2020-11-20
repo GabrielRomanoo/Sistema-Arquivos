@@ -1,5 +1,6 @@
 package view;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,11 +11,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class Hd {
 
-	private String pathHd = "hd.bin";
+	public static String pathHd = "hd.bin";
 
 	public Hd() {
 		verificaHd();
@@ -47,26 +47,39 @@ public class Hd {
 			System.out.println("Erro na leitura do arquivo");
 			e.printStackTrace();
 		}
-
 	}
 
-
 	public static void escreverNoHd(String caminho) {
-		//antes de escrever, precisa verificar se ja existe o arquivo no metadado
 		// se preocupar como dizer onde o arquivo inicia e termina, e indicar isso no
 		// metadado
 		try {
 			File file = new File(caminho);
+			Metadado.gravarNoMetadado(file);
 			FileOutputStream fos = new FileOutputStream("hd.bin", true);
 			byte[] bytes = Files.readAllBytes(file.toPath());
 			fos.write(bytes);
-			fos.write('\n');
 			fos.close();
-			Metadado.gravarNoMetadado(file);
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-//		Metadado.escreveMetadado();
+	}
+
+	public static String buscarConteudo(String[] linhaMetadado) {
+		String conteudo = "";
+		try {
+			InputStream fis = new FileInputStream("hd.bin");
+			Reader isr = new InputStreamReader(fis);
+			BufferedReader br = new BufferedReader(isr);
+			int bytetInicio = Integer.parseInt(linhaMetadado[4]);
+			int tamanho = Integer.parseInt(linhaMetadado[3]);
+			br.skip(bytetInicio);
+			for (int i = 0; i < tamanho; i++) {
+				conteudo += (char)br.read();
+			}
+			br.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+		return conteudo;
 	}
 }
