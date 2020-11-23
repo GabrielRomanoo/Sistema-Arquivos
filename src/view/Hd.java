@@ -1,6 +1,7 @@
 package view;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,7 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.file.Files;
 
 public class Hd {
@@ -79,5 +82,34 @@ public class Hd {
 			e.printStackTrace();
 		} 
 		return conteudo;
+	}
+
+	public static void excluiDoHd(String nome) {
+		try {
+			
+			String conteudo = "";
+			InputStream fis = new FileInputStream(Hd.pathHd);
+			Reader isr = new InputStreamReader(fis);
+			BufferedReader br = new BufferedReader(isr);
+			String[] linhaMetadado;
+			linhaMetadado = Metadado.buscaDadosArquivo(nome);
+			int bytetInicio = Integer.parseInt(linhaMetadado[4]);
+			int tamanho = Integer.parseInt(linhaMetadado[3]);
+			System.out.println("tamanho :" + tamanho);
+			System.out.println("byte inicio : " + bytetInicio);
+			System.out.println("byte final: " + (bytetInicio+ tamanho));
+			int i = 0;	
+			String arquivo = br.readLine();
+			conteudo += arquivo.substring(0, bytetInicio);
+			conteudo += arquivo.substring(bytetInicio+tamanho, Metadado.tamanhoTotal);
+			br.close();
+			FileOutputStream fos = new FileOutputStream(Hd.pathHd);
+			byte[] bytes = conteudo.getBytes();
+			fos.write(bytes);
+			fos.close();
+			Metadado.excluidoMetadado(nome);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

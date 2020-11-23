@@ -37,10 +37,11 @@ public class TelaComArvore {
 	private static JTree tree;
 	private static DefaultMutableTreeNode rootNode;
 	JTextArea textArea;
-	
+
 	/* Listas auxiliares */
 	public static List<DefaultMutableTreeNode> diretorios = new ArrayList<DefaultMutableTreeNode>();
-	public static List<String> arquivosDiretorio = new ArrayList<String>(); // depois tem que mudar para varios diretorios
+	public static List<String> arquivosDiretorio = new ArrayList<String>(); // depois tem que mudar para varios
+																			// diretorios
 	List<String> infosDiretorio = new ArrayList<String>();
 
 	/**
@@ -94,12 +95,12 @@ public class TelaComArvore {
 				rootNode.add(node_1);
 			}
 		});
-		
+
 		tree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
-	        public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-	            treeValueChanged(evt);
-	        }
-	    });
+			public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+				treeValueChanged(evt);
+			}
+		});
 
 		JProgressBar progressBar = new JProgressBar();
 		progressBar.setIndeterminate(true);
@@ -107,29 +108,24 @@ public class TelaComArvore {
 		progressBar.setForeground(SystemColor.textHighlight);
 
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
-		groupLayout.setHorizontalGroup(
-			groupLayout.createParallelGroup(Alignment.TRAILING)
+		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+				.addGroup(groupLayout.createSequentialGroup().addContainerGap()
+						.addComponent(tree, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addComponent(panel, GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE)
+								.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE))
+						.addGap(23)));
+		groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(tree, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(panel, GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE)
-						.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE))
-					.addGap(23))
-		);
-		groupLayout.setVerticalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel, GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE)
+						.addContainerGap())
 				.addGroup(groupLayout.createSequentialGroup()
-					.addComponent(panel, GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap())
-				.addGroup(groupLayout.createSequentialGroup()
-					.addComponent(tree, GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
-					.addContainerGap())
-		);
-		
+						.addComponent(tree, GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE).addContainerGap()));
+
 		textArea = new JTextArea();
 		panel.add(textArea);
 		frame.getContentPane().setLayout(groupLayout);
@@ -177,13 +173,23 @@ public class TelaComArvore {
 		mnNewMenu_1.add(mntmNewMenuItem_1_1);
 		mntmNewMenuItem_1_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (numeroDeNos > 0) {
-					numeroDeNos--;
+				boolean arquivoExiste = false;
+				String nome = JOptionPane.showInputDialog(frame, "Digite o nome do arquivo (com extensão)");
+				for (String string : arquivosDiretorio) {
+					if (string.equals(nome)) {
+						arquivoExiste = true;
+					}
 				}
-				String nome = JOptionPane.showInputDialog(frame, "Digite o nome do arquivo");
-				arquivosDiretorio.remove(nome);
-				updateArvore();
-//				System.out.println("removido arquivos do diretorio: " + diretorios.get(0).toString()); // retorna Pasta1
+				if (arquivoExiste != true) {
+					JOptionPane.showMessageDialog(frame, "O arquivo " + nome + " não existe no hd!");
+				} else {
+					numeroDeNos--;
+					Hd.excluiDoHd(nome);
+					arquivosDiretorio.remove(nome);
+					updateArvore();
+//					System.out.println("removido arquivos do diretorio: " + diretorios.get(0).toString()); // retorna Pasta1
+					JOptionPane.showMessageDialog(frame, "Removido o " + nome + " arquivo do hd!");	
+				}
 				panel.updateUI();
 			}
 		});
@@ -198,11 +204,11 @@ public class TelaComArvore {
 		mntmNewMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String conteudoMetadado = Metadado.lerMetadado();
-	    		textArea.setVisible(true);
+				textArea.setVisible(true);
 				textArea.setText(conteudoMetadado);
 			}
 		});
-		
+
 		JMenuItem open = new JMenuItem("FileChooser");
 		open.setFont(new Font("Rubik", Font.PLAIN, 12));
 		mnNewMenu.add(open);
@@ -279,21 +285,22 @@ public class TelaComArvore {
 			row++;
 		}
 	}
-	
+
 	public void treeValueChanged(TreeSelectionEvent tse) {
-	     String node = tse.getNewLeadSelectionPath().getLastPathComponent().toString();
-	     arquivosDiretorio.forEach(elemento -> {
-	    	 if (node.toString() == elemento.toString()) {
-	    		 String extensao = node.toString().substring(node.length() - 3, node.length());
-	    		 if (extensao == "txt" ) {
-		    		 String[] linhaMetadado = Metadado.buscaTamanhoArquivo(elemento.toString());
-		    		 String conteudo = Hd.buscarConteudo(linhaMetadado);
-		    		 textArea.setVisible(true);
-					 textArea.setText(conteudo);
-	    		 } else {
-	    			 JOptionPane.showMessageDialog(frame, "É possível apenas ler aquivos (.txt)");
-	    		 }
-	    	 }
-	     });
+		String node = tse.getNewLeadSelectionPath().getLastPathComponent().toString();
+		arquivosDiretorio.forEach(elemento -> {
+			if (node.toString() == elemento.toString()) {
+				String extensao = node.toString().substring(node.length() - 3, node.length());
+				
+				if (extensao.equals("txt")) {
+					String[] linhaMetadado = Metadado.buscaDadosArquivo(elemento.toString());
+					String conteudo = Hd.buscarConteudo(linhaMetadado);
+					textArea.setVisible(true);
+					textArea.setText(conteudo);
+				} else {
+					JOptionPane.showMessageDialog(frame, "É possível apenas ler aquivos (.txt)");
+				}
+			}
+		});
 	}
 }

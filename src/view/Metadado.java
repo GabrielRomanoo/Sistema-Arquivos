@@ -15,6 +15,7 @@ public class Metadado {
 
 	private static String pathMetadado = "metadado.bin";
 	private static int numeroDeArquivos = 0;
+	public static int tamanhoTotal = 0;
 
 	public static void criaMetadado() {
 		try {
@@ -37,6 +38,7 @@ public class Metadado {
 			fos.write(bytes);
 			fos.write('\n');
 			fos.close();
+			tamanhoTotal = (int) (hd.length() + file.length());
 		} catch (IOException e) {
 			numeroDeArquivos--;
 			e.printStackTrace();
@@ -84,7 +86,7 @@ public class Metadado {
 		return true;
 	}
 
-	public static String[] buscaTamanhoArquivo(String nome) {
+	public static String[] buscaDadosArquivo(String nome) {
 		try {
 			InputStream fis = new FileInputStream(Metadado.pathMetadado);
 			Reader isr = new InputStreamReader(fis);
@@ -121,4 +123,31 @@ public class Metadado {
 		} 
 		return conteudo;
 	}
+
+	public static void excluidoMetadado(String nome) {
+		String conteudo = "";
+		try {
+			InputStream fis = new FileInputStream(Metadado.pathMetadado);
+			Reader isr = new InputStreamReader(fis);
+			BufferedReader br = new BufferedReader(isr);
+			String linha = br.readLine();
+			while (linha != null) {
+				String[] valores = linha.split(";");
+				if (!(valores[1].equals(nome))) {
+					conteudo += linha + "\n";
+				}
+				linha = br.readLine();
+			}
+			br.close();
+			FileOutputStream fos = new FileOutputStream(Metadado.pathMetadado);
+			byte[] bytes = conteudo.getBytes();
+			fos.write(bytes);
+			fos.close();
+			numeroDeArquivos--;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
 }
