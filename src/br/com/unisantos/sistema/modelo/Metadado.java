@@ -1,4 +1,4 @@
-package view;
+package br.com.unisantos.sistema.modelo;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,12 +11,24 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.file.Files;
 
+import br.com.unisantos.sistema.view.Tela;
+
+/**
+ * Classe que representa um Metadado
+ * 
+ * @author Gabriel Romano, Felipe Ferreira, Jaime Mathias, Willy Pestana, Marcus Vinicius e Will.
+ *
+ */
+
 public class Metadado {
 
-	private static String pathMetadado = "metadado.bin";
+	private static String pathMetadado = "Metadado.bin";
 	private static int numeroDeArquivos = 0;
 	public static int tamanhoTotal = 0;
 
+	/**
+	 * Método estático que cria o arquivo metadado.bin.
+	 */
 	public static void criaMetadado() {
 		try {
 			OutputStream fos = new FileOutputStream(Metadado.pathMetadado);
@@ -27,6 +39,11 @@ public class Metadado {
 		}
 	}
 
+	/**
+	 * Método que grava os dados de um arquivo no Metadado.bin, a partir do nome desse arquivo.
+	 * 
+	 * @param file File
+	 */
 	public static void gravarNoMetadado(File file) {
 		try {
 			FileOutputStream fos = new FileOutputStream(Metadado.pathMetadado, true);
@@ -45,6 +62,9 @@ public class Metadado {
 		}
 	}
 
+	/**
+	 * Método que carrega os dados do Metadado.bin para o programa.
+	 */
 	public static void carregarDados() {
 		try {
 			FileInputStream fis = new FileInputStream(Metadado.pathMetadado);
@@ -52,13 +72,13 @@ public class Metadado {
 			BufferedReader br = new BufferedReader(isr);
 			String linha = br.readLine();
 			while (linha != null) {
-				TelaComArvore.numeroDeNos++;
+				Tela.numeroDeNos++;
 				String[] valores = linha.split(";");
-				TelaComArvore.arquivosDiretorio.add(valores[1]);
+				Tela.arquivosDiretorio.add(valores[1]);
 				Metadado.tamanhoTotal = Integer.valueOf(valores[5]);
 				linha = br.readLine();
 			}
-			TelaComArvore.updateArvore();
+			Tela.updateArvore();
 			br.close();
 		} catch (IOException e) {
 			numeroDeArquivos--;
@@ -66,7 +86,14 @@ public class Metadado {
 		}
 	}
 
+	/**
+	 * Metodo que verifica se um arquivo está gravado no Metadado.bin, a partir do nome desse arquivo.
+	 * 
+	 * @param filepath - String
+	 * @return booelan
+	 */
 	public static boolean verificaArquivo(String filepath) {
+		boolean existeArquivo = true;
 		try {
 			InputStream fis = new FileInputStream(Metadado.pathMetadado);
 			Reader isr = new InputStreamReader(fis);
@@ -77,17 +104,24 @@ public class Metadado {
 				String[] numero = valores[0].split("@");
 				numeroDeArquivos = Integer.parseInt(numero[0]);
 				if (filepath.equals(valores[2]))
-					return false;
+					existeArquivo = false;
 				linha = br.readLine();
 			}
 			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return true;
+		return existeArquivo;
 	}
 
+	/**
+	 * Método que retorna a linha de um determinado arquivo no Metadado.bin, a partir do seu nome.
+	 * 
+	 * @param nome String
+	 * @return String[]
+	 */
 	public static String[] buscaDadosArquivo(String nome) {
+		String[] valor = null;
 		try {
 			InputStream fis = new FileInputStream(Metadado.pathMetadado);
 			Reader isr = new InputStreamReader(fis);
@@ -96,7 +130,7 @@ public class Metadado {
 			while (linha != null) {
 				String[] valores = linha.split(";");
 				if (nome.equals(valores[1])) {
-					return valores;
+					valor = valores;
 				}
 				linha = br.readLine();
 			}
@@ -104,9 +138,14 @@ public class Metadado {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return valor;
 	}
 
+	/**
+	 * Método estático que retorna os dados do Metadado.bin.
+	 * 
+	 * @return String
+	 */
 	public static String lerMetadado() {
 		String conteudo = "";
 		try {
@@ -125,6 +164,11 @@ public class Metadado {
 		return conteudo;
 	}
 
+	/**
+	 * Método estático que exclui os dados de uma determinado arquvio no Metadado.bin, a partir do nome desse arquivo.
+	 * 
+	 * @param nome String
+	 */
 	public static void excluidoMetadado(String nome) {
 		String conteudo = "";
 		try {
@@ -150,38 +194,34 @@ public class Metadado {
 		}
 	}
 
-	public static void atualizaMetadado(String nome, int deslocamento) {
+	/**
+	 * Método estático que atualiza os dados do Metadado.bin após uma remoção, a partir do nome do arquivo e o seu tamanho.
+	 * 
+	 * @param nome String
+	 * @param tamanho int
+	 */
+	public static void atualizaMetadado(String nome, int tamanho) {
 		String conteudo = "";
 		String[] linhaArquivo = Metadado.buscaDadosArquivo(nome);
 		int numeroLinha = Integer.valueOf(linhaArquivo[0].substring(0, 1));
 		try {
-			System.out.println("deslocamento: " + deslocamento);
 			InputStream fis = new FileInputStream(Metadado.pathMetadado);
 			Reader isr = new InputStreamReader(fis);
 			BufferedReader br = new BufferedReader(isr);
 			String linha = br.readLine();
 			while (linha != null) {
 				String[] valores = linha.split(";");
-				System.out.println("byteIncio do arquivo " + valores[1] + ": " + valores[4]);
 				if (Integer.valueOf(valores[0].substring(0, 1)) < numeroLinha) {
 					conteudo += valores[0]+ ";" + valores[1] + ";" + valores[2] + ";"
 							+ valores[3] + ";" + valores[4] + ";" + valores[5] + ";" + "\n";
 				}
 				if (Integer.valueOf(valores[0].substring(0, 1)) > numeroLinha) {
-					System.out.println("entrou na linha: "+ Integer.valueOf(valores[0].substring(0, 1)));
-					System.out.println("-------------------------------");
-					System.out.println("byte inicio ANTIGO : " + valores[4]);
-					System.out.println("byte final ANTIGO: " + valores[5]);
-					int valor = Integer.valueOf(valores[4]) - deslocamento;
+					int valor = Integer.valueOf(valores[4]) - tamanho;
 					valores[4] = String.valueOf(valor);
-					valor = Integer.valueOf(valores[5]) - deslocamento;
+					valor = Integer.valueOf(valores[5]) - tamanho;
 					valores[5] = String.valueOf(valor);
-					System.out.println("-------------------------------");
-					System.out.println("byte inicio : " + valores[4]);
-					System.out.println("byte final: " + valores[5]);
 					conteudo += valores[0]+ ";" + valores[1] + ";" + valores[2] + ";"
 							+ valores[3] + ";" + valores[4] + ";" + valores[5] + ";" + "\n";
-					System.out.println("linha: "+ conteudo);
 				}
 				linha = br.readLine();
 			}

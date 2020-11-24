@@ -1,4 +1,4 @@
-package view;
+package br.com.unisantos.sistema.modelo;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,15 +11,21 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.file.Files;
 
+/**
+ * Classe que representa um HD
+ * 
+ * @author Gabriel Romano, Felipe Ferreira, Jaime Mathias, Willy Pestana, Marcus Vinicius e Will.
+ *
+ */
+
 public class Hd {
 
-	public static String pathHd = "hd.bin";
+	public static String pathHd = "Hd.bin";
 
+	/**
+	 * Construtor que verifica se o Hd.bin já está criado. Caso contrário, carrega os dados do Hd.bin.
+	 */
 	public Hd() {
-		verificaHd();
-	}
-
-	public void verificaHd() {
 		File file = new File(Hd.pathHd);
 		if (!file.exists()) {
 			criaHd();
@@ -28,6 +34,9 @@ public class Hd {
 		}
 	}
 
+	/**
+	 * Método que cria o arquivo Hd.bin de forma binária.
+	 */
 	private void criaHd() {
 		try {
 			OutputStream fos = new FileOutputStream(Hd.pathHd);
@@ -38,17 +47,12 @@ public class Hd {
 			e.printStackTrace();
 		}
 	}
-
-	private void leHd() {
-		try {
-			InputStream fis = new FileInputStream(Hd.pathHd);
-			fis.close();
-		} catch (IOException e) {
-			System.out.println("Erro na leitura do arquivo hd.bin");
-			e.printStackTrace();
-		}
-	}
-
+	
+	/**
+	 * Método estático que escreve o conteúdo de um arquivo no Hd.bin, a partir do nome desse arquivo.
+	 * 
+	 * @param caminho String
+	 */
 	public static void escreverNoHd(String caminho) {
 		try {
 			File file = new File(caminho);
@@ -62,6 +66,12 @@ public class Hd {
 		}
 	}
 
+	/**
+	 * Método estático para retornar o conteúdo de um arquivo no Hd.bin, a partir da linha desse arquivo no Metadado.bin.
+	 * 
+	 * @param linhaMetadado String[]
+	 * @return String
+	 */
 	public static String buscarConteudo(String[] linhaMetadado) {
 		String conteudo = "";
 		try {
@@ -74,14 +84,18 @@ public class Hd {
 			for (int i = 0; i < tamanho; i++) {
 				conteudo += (char)br.read();
 			}
-			System.out.println(conteudo);
 			br.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} 
 		return conteudo;
 	}
 
+	/**
+	 * Método estático para exlcuir os dados de um arquivo no Hd.bin, a partir do nome do arquivo.
+	 * 
+	 * @param nome String
+	 */
 	public static void excluiDoHd(String nome) {
 		try {
 			String conteudo = "";
@@ -90,31 +104,16 @@ public class Hd {
 			BufferedReader br = new BufferedReader(isr);
 			String[] linhaMetadado;
 			linhaMetadado = Metadado.buscaDadosArquivo(nome);
-			int bytetInicio = Integer.parseInt(linhaMetadado[4]);
+			int byteInicio = Integer.parseInt(linhaMetadado[4]);
 			int tamanho = Integer.parseInt(linhaMetadado[3]);
-			System.out.println("tamanho :" + tamanho);
-			System.out.println("byte inicio : " + bytetInicio);
-			System.out.println("byte final: " + (bytetInicio+ tamanho));
-			int i = 0;	
-			String dado = br.readLine();
+			int byteFinal = byteInicio + tamanho;
 			String arquivo = "";
-			while(dado != null) {
-				System.out.println("linha " + i);
-				arquivo += dado;
-				dado = br.readLine();
-				i++;
+			arquivo = String.valueOf((char)br.read());
+			for (int i = 0; i < Metadado.tamanhoTotal; i++) {
+				arquivo += (char)br.read();
 			}
-			conteudo = arquivo.substring(bytetInicio, bytetInicio+ tamanho);
-			System.out.println(conteudo);
-			System.out.println(arquivo);
-			conteudo = arquivo.replace(conteudo, "");
-			System.out.println(conteudo);
-			System.out.println(conteudo.length());
-			System.out.println(arquivo.length());
-
-			
-			//conteudo += arquivo.substring(bytetInicio+tamanho, Metadado.tamanhoTotal);
-//			conteudo += arquivo.substring(bytetInicio+tamanho, dado.length());
+			conteudo = arquivo.substring(0, byteInicio);
+			conteudo +=  arquivo.substring(byteFinal, Metadado.tamanhoTotal);
 			br.close();
 			FileOutputStream fos = new FileOutputStream(Hd.pathHd);
 			byte[] bytes = conteudo.getBytes();

@@ -1,4 +1,4 @@
-package view;
+package br.com.unisantos.sistema.view;
 
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -26,31 +26,42 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-public class TelaComArvore {
+import br.com.unisantos.sistema.modelo.Hd;
+import br.com.unisantos.sistema.modelo.Metadado;
 
-	/* Declara as referencias */
+/**
+ * Classe que representa a Tela do programa
+ * 
+ * @author Gabriel Romano, Felipe Ferreira, Jaime Mathias, Willy Pestana, Marcus Vinicius e Will.
+ *
+ */
+
+public class Tela {
+
+	/**
+	 * Declaração e inicialização dos atributos da classe.
+	 */
 	private JFrame frame;
 	int numeroDeDiretorios;
 	public static int numeroDeNos = 0;
 	private static JTree tree;
 	private static DefaultMutableTreeNode rootNode;
+	public static List<DefaultMutableTreeNode> diretorios = new ArrayList<DefaultMutableTreeNode>();
+	public static List<String> arquivosDiretorio = new ArrayList<String>(); 
+	List<String> infosDiretorio = new ArrayList<String>();
 	JTextArea textArea;
 	JPanel panel;
 
-	/* Listas auxiliares */
-	public static List<DefaultMutableTreeNode> diretorios = new ArrayList<DefaultMutableTreeNode>();
-	public static List<String> arquivosDiretorio = new ArrayList<String>(); // depois tem que mudar para varios
-																			// diretorios
-	List<String> infosDiretorio = new ArrayList<String>();
-
 	/**
-	 * Launch the application.
+	 * Lança a aplicação.
+	 * @param args String[]
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TelaComArvore window = new TelaComArvore();
+					Tela window = new Tela();
+					@SuppressWarnings("unused")
 					Hd hd = new Hd();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
@@ -61,15 +72,16 @@ public class TelaComArvore {
 	}
 
 	/**
-	 * Create the application.
+	 * Construtor para inicializar a tela.
 	 */
-	public TelaComArvore() {
+	public Tela() {
 		initialize();
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * Método que inicializa os conteúdos do frame
 	 */
+	@SuppressWarnings("serial")
 	private void initialize() {
 
 		frame = new JFrame();
@@ -182,7 +194,6 @@ public class TelaComArvore {
 				if (arquivoExiste != true) {
 					JOptionPane.showMessageDialog(frame, "O arquivo " + nome + " não existe no hd!");
 				} else {
-					System.out.println(Metadado.tamanhoTotal);
 					numeroDeNos--;
 					Hd.excluiDoHd(nome);
 					arquivosDiretorio.remove(nome);
@@ -203,8 +214,11 @@ public class TelaComArvore {
 		mntmNewMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String conteudoMetadado = Metadado.lerMetadado();
-				textArea.setVisible(true);
-				textArea.setText(conteudoMetadado);
+				if (conteudoMetadado.isEmpty())
+					JOptionPane.showMessageDialog(frame, "O arquivo metadado.bin está vazio!");
+				else
+					textArea.setVisible(true);
+					textArea.setText(conteudoMetadado);
 			}
 		});
 
@@ -212,12 +226,12 @@ public class TelaComArvore {
 		open.setFont(new Font("Rubik", Font.PLAIN, 12));
 		mnNewMenu.add(open);
 		
-		JMenuItem mntmTamanhoHd = new JMenuItem("tamanho HD");
+		JMenuItem mntmTamanhoHd = new JMenuItem("Tamanho HD");
 		mntmTamanhoHd.setFont(new Font("Rubik", Font.PLAIN, 12));
 		mnNewMenu.add(mntmTamanhoHd);
 		mntmTamanhoHd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(frame, "Tamanho do HD: "+ Metadado.tamanhoTotal);
+				JOptionPane.showMessageDialog(frame, "Tamanho do HD: "+ Metadado.tamanhoTotal + " bytes");
 			}
 		});
 
@@ -240,16 +254,27 @@ public class TelaComArvore {
 		JMenuItem mntmNewMenuItem_4 = new JMenuItem("Guia...");
 		mntmNewMenuItem_4.setFont(new Font("Rubik", Font.PLAIN, 12));
 		mnAjuda.add(mntmNewMenuItem_4);
+		mntmNewMenuItem_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(frame, "Para mais informações, acesse: github.com/GabrielRomanoo/Sistema-Arquivos");
+			}
+		});
 
 		JMenuItem mntmNewMenuItem_1_3 = new JMenuItem("Sobre...");
 		mntmNewMenuItem_1_3.setFont(new Font("Rubik", Font.PLAIN, 12));
 		mnAjuda.add(mntmNewMenuItem_1_3);
-		
-		System.out.println("de novo");
+		mntmNewMenuItem_1_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(frame, "      Simulador de um Gerenciador de Arquivos\nDesenvolvedores: Gabriel Romano, Felipe Ferreira,\n Jaime Mathias, Willy Pestana, Marcus Vinicius e Will");
+			}
+		});
 	}
 
+	/**
+	 * Método que atualiza a arvore de arquivos após uma remoção ou inserção.
+	 */
 	public static void updateArvore() {
-		TelaComArvore.rootNode.removeAllChildren();
+		Tela.rootNode.removeAllChildren();
 		diretorios.get(0).removeAllChildren();
 		for (int i = 0; i < numeroDeNos; i++) {
 			DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
@@ -258,11 +283,12 @@ public class TelaComArvore {
 			root.add(diretorios.get(0));
 			model.reload(root);
 		}
-//		System.out.println(diretorios.get(0).getNextNode().toString()); //imprime o primeiro nome do arquivo do diretorio 0
-//		System.out.println(diretorios.get(0).toString());	
 		expandAll();
 	}
 
+	/**
+	 * Método que expande a arvore de arquivos.
+	 */
 	public static void expandAll() {
 		int row = 0;
 		while (row < tree.getRowCount()) {
@@ -271,6 +297,11 @@ public class TelaComArvore {
 		}
 	}
 
+	/**
+	 * Método que mostra na tela o conteúdo do arquivo ao clicar nele.
+	 * 
+	 * @param tse TreeSelectionEvent
+	 */
 	public void treeValueChanged(TreeSelectionEvent tse) {
 		try {
 		String node = tse.getNewLeadSelectionPath().getLastPathComponent().toString();
@@ -289,7 +320,8 @@ public class TelaComArvore {
 		});
 		}
 		catch(Exception e) {
-			
+			System.out.println("Erro ao clicar na arvore!");
+			e.printStackTrace();
 		}
 		panel.updateUI();
 	}
