@@ -1,5 +1,5 @@
 # Sistema-Arquivos
-Projeto que simula um sistema gerenciador de arquivos
+Projeto que simula um sistema gerenciador de arquivos com interface gráfica
 
 ## Integrantes
 - Felipe Ferreira
