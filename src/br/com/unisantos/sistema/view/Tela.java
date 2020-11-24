@@ -201,6 +201,7 @@ public class Tela {
 					JOptionPane.showMessageDialog(frame, "Removido o " + nome + " arquivo do hd!");	
 				}
 				panel.updateUI();
+				tree.updateUI();
 			}
 		});
 
@@ -221,10 +222,6 @@ public class Tela {
 					textArea.setText(conteudoMetadado);
 			}
 		});
-
-		JMenuItem open = new JMenuItem("FileChooser");
-		open.setFont(new Font("Rubik", Font.PLAIN, 12));
-		mnNewMenu.add(open);
 		
 		JMenuItem mntmTamanhoHd = new JMenuItem("Tamanho HD");
 		mntmTamanhoHd.setFont(new Font("Rubik", Font.PLAIN, 12));
@@ -234,18 +231,6 @@ public class Tela {
 				JOptionPane.showMessageDialog(frame, "Tamanho do HD: "+ Metadado.tamanhoTotal + " bytes");
 			}
 		});
-
-		JMenu mnNewMenu_2 = new JMenu("Op\u00E7\u00F5es");
-		mnNewMenu_2.setFont(new Font("Rubik", Font.PLAIN, 12));
-		menuBar.add(mnNewMenu_2);
-
-		JMenuItem mntmNewMenuItem_3 = new JMenuItem("Visualizar Log...");
-		mntmNewMenuItem_3.setFont(new Font("Rubik", Font.PLAIN, 12));
-		mnNewMenu_2.add(mntmNewMenuItem_3);
-
-		JMenuItem mntmNewMenuItem_1_2 = new JMenuItem("Deletar Log");
-		mntmNewMenuItem_1_2.setFont(new Font("Rubik", Font.PLAIN, 12));
-		mnNewMenu_2.add(mntmNewMenuItem_1_2);
 
 		JMenu mnAjuda = new JMenu("Ajuda");
 		mnAjuda.setFont(new Font("Rubik", Font.PLAIN, 12));
