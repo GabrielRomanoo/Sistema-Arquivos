@@ -5,9 +5,7 @@ import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +35,7 @@ public class TelaComArvore {
 	private static JTree tree;
 	private static DefaultMutableTreeNode rootNode;
 	JTextArea textArea;
+	JPanel panel;
 
 	/* Listas auxiliares */
 	public static List<DefaultMutableTreeNode> diretorios = new ArrayList<DefaultMutableTreeNode>();
@@ -77,7 +76,7 @@ public class TelaComArvore {
 		frame.setBounds(100, 100, 450, 300);
 		frame.getContentPane().setLayout(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JPanel panel = new JPanel();
+		panel = new JPanel();
 		panel.setVisible(true);
 
 		rootNode = new DefaultMutableTreeNode("Disco (C:)");
@@ -183,11 +182,11 @@ public class TelaComArvore {
 				if (arquivoExiste != true) {
 					JOptionPane.showMessageDialog(frame, "O arquivo " + nome + " não existe no hd!");
 				} else {
+					System.out.println(Metadado.tamanhoTotal);
 					numeroDeNos--;
 					Hd.excluiDoHd(nome);
 					arquivosDiretorio.remove(nome);
 					updateArvore();
-//					System.out.println("removido arquivos do diretorio: " + diretorios.get(0).toString()); // retorna Pasta1
 					JOptionPane.showMessageDialog(frame, "Removido o " + nome + " arquivo do hd!");	
 				}
 				panel.updateUI();
@@ -212,29 +211,13 @@ public class TelaComArvore {
 		JMenuItem open = new JMenuItem("FileChooser");
 		open.setFont(new Font("Rubik", Font.PLAIN, 12));
 		mnNewMenu.add(open);
-		open.addActionListener(new ActionListener() {
+		
+		JMenuItem mntmTamanhoHd = new JMenuItem("tamanho HD");
+		mntmTamanhoHd.setFont(new Font("Rubik", Font.PLAIN, 12));
+		mnNewMenu.add(mntmTamanhoHd);
+		mntmTamanhoHd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (e.getSource() == open) {
-					JFileChooser fc = new JFileChooser();
-					int i = fc.showOpenDialog(open);
-					if (i == JFileChooser.APPROVE_OPTION) {
-						File f = fc.getSelectedFile();
-						String filepath = f.getPath();
-						try {
-							BufferedReader br = new BufferedReader(new FileReader(filepath));
-							String s1 = "", s2 = "";
-							while ((s1 = br.readLine()) != null) {
-								s2 += s1 + "\n";
-							}
-							s2 = s2.substring(0, s2.length() - 1);
-							textArea.setVisible(true);
-							textArea.setText(s2);
-							br.close();
-						} catch (Exception ex) {
-							ex.printStackTrace();
-						}
-					}
-				}
+				JOptionPane.showMessageDialog(frame, "Tamanho do HD: "+ Metadado.tamanhoTotal);
 			}
 		});
 
@@ -261,6 +244,8 @@ public class TelaComArvore {
 		JMenuItem mntmNewMenuItem_1_3 = new JMenuItem("Sobre...");
 		mntmNewMenuItem_1_3.setFont(new Font("Rubik", Font.PLAIN, 12));
 		mnAjuda.add(mntmNewMenuItem_1_3);
+		
+		System.out.println("de novo");
 	}
 
 	public static void updateArvore() {
@@ -287,11 +272,11 @@ public class TelaComArvore {
 	}
 
 	public void treeValueChanged(TreeSelectionEvent tse) {
+		try {
 		String node = tse.getNewLeadSelectionPath().getLastPathComponent().toString();
 		arquivosDiretorio.forEach(elemento -> {
-			if (node.toString() == elemento.toString()) {
+			if (node.toString().equals(elemento.toString())) {
 				String extensao = node.toString().substring(node.length() - 3, node.length());
-				
 				if (extensao.equals("txt")) {
 					String[] linhaMetadado = Metadado.buscaDadosArquivo(elemento.toString());
 					String conteudo = Hd.buscarConteudo(linhaMetadado);
@@ -302,5 +287,10 @@ public class TelaComArvore {
 				}
 			}
 		});
+		}
+		catch(Exception e) {
+			
+		}
+		panel.updateUI();
 	}
 }

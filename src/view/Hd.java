@@ -1,7 +1,6 @@
 package view;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,9 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.Writer;
 import java.nio.file.Files;
 
 public class Hd {
@@ -77,6 +74,7 @@ public class Hd {
 			for (int i = 0; i < tamanho; i++) {
 				conteudo += (char)br.read();
 			}
+			System.out.println(conteudo);
 			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -86,7 +84,6 @@ public class Hd {
 
 	public static void excluiDoHd(String nome) {
 		try {
-			
 			String conteudo = "";
 			InputStream fis = new FileInputStream(Hd.pathHd);
 			Reader isr = new InputStreamReader(fis);
@@ -99,14 +96,31 @@ public class Hd {
 			System.out.println("byte inicio : " + bytetInicio);
 			System.out.println("byte final: " + (bytetInicio+ tamanho));
 			int i = 0;	
-			String arquivo = br.readLine();
-			conteudo += arquivo.substring(0, bytetInicio);
-			conteudo += arquivo.substring(bytetInicio+tamanho, Metadado.tamanhoTotal);
+			String dado = br.readLine();
+			String arquivo = "";
+			while(dado != null) {
+				System.out.println("linha " + i);
+				arquivo += dado;
+				dado = br.readLine();
+				i++;
+			}
+			conteudo = arquivo.substring(bytetInicio, bytetInicio+ tamanho);
+			System.out.println(conteudo);
+			System.out.println(arquivo);
+			conteudo = arquivo.replace(conteudo, "");
+			System.out.println(conteudo);
+			System.out.println(conteudo.length());
+			System.out.println(arquivo.length());
+
+			
+			//conteudo += arquivo.substring(bytetInicio+tamanho, Metadado.tamanhoTotal);
+//			conteudo += arquivo.substring(bytetInicio+tamanho, dado.length());
 			br.close();
 			FileOutputStream fos = new FileOutputStream(Hd.pathHd);
 			byte[] bytes = conteudo.getBytes();
 			fos.write(bytes);
 			fos.close();
+			Metadado.atualizaMetadado(nome, tamanho);
 			Metadado.excluidoMetadado(nome);
 		} catch (IOException e) {
 			e.printStackTrace();

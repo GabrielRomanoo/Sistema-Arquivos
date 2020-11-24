@@ -55,6 +55,7 @@ public class Metadado {
 				TelaComArvore.numeroDeNos++;
 				String[] valores = linha.split(";");
 				TelaComArvore.arquivosDiretorio.add(valores[1]);
+				Metadado.tamanhoTotal = Integer.valueOf(valores[5]);
 				linha = br.readLine();
 			}
 			TelaComArvore.updateArvore();
@@ -147,7 +148,52 @@ public class Metadado {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 
+	public static void atualizaMetadado(String nome, int deslocamento) {
+		String conteudo = "";
+		String[] linhaArquivo = Metadado.buscaDadosArquivo(nome);
+		int numeroLinha = Integer.valueOf(linhaArquivo[0].substring(0, 1));
+		try {
+			System.out.println("deslocamento: " + deslocamento);
+			InputStream fis = new FileInputStream(Metadado.pathMetadado);
+			Reader isr = new InputStreamReader(fis);
+			BufferedReader br = new BufferedReader(isr);
+			String linha = br.readLine();
+			while (linha != null) {
+				String[] valores = linha.split(";");
+				System.out.println("byteIncio do arquivo " + valores[1] + ": " + valores[4]);
+				if (Integer.valueOf(valores[0].substring(0, 1)) < numeroLinha) {
+					conteudo += valores[0]+ ";" + valores[1] + ";" + valores[2] + ";"
+							+ valores[3] + ";" + valores[4] + ";" + valores[5] + ";" + "\n";
+				}
+				if (Integer.valueOf(valores[0].substring(0, 1)) > numeroLinha) {
+					System.out.println("entrou na linha: "+ Integer.valueOf(valores[0].substring(0, 1)));
+					System.out.println("-------------------------------");
+					System.out.println("byte inicio ANTIGO : " + valores[4]);
+					System.out.println("byte final ANTIGO: " + valores[5]);
+					int valor = Integer.valueOf(valores[4]) - deslocamento;
+					valores[4] = String.valueOf(valor);
+					valor = Integer.valueOf(valores[5]) - deslocamento;
+					valores[5] = String.valueOf(valor);
+					System.out.println("-------------------------------");
+					System.out.println("byte inicio : " + valores[4]);
+					System.out.println("byte final: " + valores[5]);
+					conteudo += valores[0]+ ";" + valores[1] + ";" + valores[2] + ";"
+							+ valores[3] + ";" + valores[4] + ";" + valores[5] + ";" + "\n";
+					System.out.println("linha: "+ conteudo);
+				}
+				linha = br.readLine();
+			}
+			br.close();
+			FileOutputStream fos = new FileOutputStream(Metadado.pathMetadado);
+			byte[] bytes = conteudo.getBytes();
+			fos.write(bytes);
+			fos.close();
+			tamanhoTotal -= Integer.valueOf(linhaArquivo[3]);
+			numeroDeArquivos--;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
