@@ -113,29 +113,24 @@ public class Tela {
 			}
 		});
 
-		JProgressBar progressBar = new JProgressBar();
-		progressBar.setIndeterminate(true);
-		progressBar.setStringPainted(true);
-		progressBar.setForeground(SystemColor.textHighlight);
-
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
-		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-				.addGroup(groupLayout.createSequentialGroup().addContainerGap()
-						.addComponent(tree, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addComponent(panel, GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE)
-								.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE))
-						.addGap(23)));
-		groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-						.addComponent(panel, GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-								GroupLayout.PREFERRED_SIZE)
-						.addContainerGap())
-				.addGroup(groupLayout.createSequentialGroup()
-						.addComponent(tree, GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE).addContainerGap()));
+		groupLayout.setHorizontalGroup(
+			groupLayout.createParallelGroup(Alignment.TRAILING)
+				.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(tree, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(panel, GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE)
+					.addGap(23))
+		);
+		groupLayout.setVerticalGroup(
+			groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+						.addComponent(panel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+						.addComponent(tree, GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE))
+					.addContainerGap())
+		);
 
 		textArea = new JTextArea();
 		panel.add(textArea);
