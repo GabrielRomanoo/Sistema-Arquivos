@@ -7,6 +7,7 @@ Projeto que simula um sistema gerenciador de arquivos com interface gráfica
 - Jaime Mathias
 - Marcus Vinicius
 - Willy Pestana
+- Willian Costa
 
 ## Linguagens e Tecnologias
 - Java
